@@ -1,0 +1,118 @@
+<template>
+  <div class="flex" style="height: 100%">
+    <div style="width: 270px; border-right: 1px solid #666666" class="mr10">
+      <div style="overflow-y: auto;height:100vh;">
+       <p class="bold" style="margin-left:20px;margin-top:10px;">引入的图片集:</p> 
+        <div v-for="(item, index) in imgShowList" :key="index">
+          <img
+            :src="item"
+            alt="example"
+            style="width: 100%; height: 100%; object-fit: fill"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <!-- 显示图片 -->
+      <div class="flex">
+        <div>
+          <div
+            class="header mb10 text-ac"
+            style="padding-top: 30px; font-size: 25px"
+          >
+            <b>Tensorflow</b> 图片识别模型训练平台
+          </div>
+          <a-button type="primary" class="mb5" @click="returnToHome()">
+            返回首页
+          </a-button>
+          <div class="flex">
+            <div>
+              <div>
+                <div class="recognise-bg">
+                  <img
+                    src="https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70"
+                    alt="example"
+                    style="width: 100%; height: 100%; object-fit: fill"
+                  />
+                </div>
+              </div>
+            </div>
+            <!-- 右边的图片显示 -->
+            <div class="flex-d-c ml5">
+              <a-button type="danger" class="mb5" @click="clickRecognise">
+                点击识别
+              </a-button>
+              <a-button type="danger" class="mb5"> 导出模型 </a-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a-modal
+      :visible="recognisedShowStatus"
+      :footer="null"
+      :width="800"
+      @cancel="closeRecognisedModal(false)"
+    >
+      <RecognisedPage @closeRecognised="closeRecognisedModal"></RecognisedPage>
+      <!-- <img alt="example" style="width: 100%" :src="previewImage" /> -->
+    </a-modal>
+  </div>
+</template>
+
+<script>
+const key = "updatable";
+import RecognisedPage from "./recognised";
+export default {
+  name: "index",
+  components: { RecognisedPage },
+  data() {
+    return {
+      imgShowList: [
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+      ], // 图片上传数组
+      recognisedShowStatus: false, // 识别成功界面模态框显示或隐藏
+    };
+  },
+  methods: {
+    // 点击识别
+    clickRecognise() {
+      this.$message.loading({ content: "识别提交中...请稍后", key });
+      setTimeout(() => {
+        this.$message.success({
+          content: "识别结果返回成功!",
+          key,
+          duration: 2,
+        });
+        this.closeRecognisedModal(true); // 显示识别成功模态框
+      }, 1000);
+    },
+    closeRecognisedModal(val) {
+      this.recognisedShowStatus = val;
+    },
+    returnToHome() {
+      this.$router.push({ path: "/home" });
+    },
+  },
+};
+</script>
+<style lang="scss" scoped>
+.header {
+}
+.recognise-bg {
+  width: 700px;
+  height: 400px;
+  border: 1px solid black;
+  border-radius: 2px;
+  // background-color: #a7a7a7;
+  color: white;
+}
+</style>

@@ -1,0 +1,91 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: '微软雅黑';
+}
+::-webkit-scrollbar {
+    display: none;
+}
+// 公共样式
+body {
+    background-color: #aaaaaa2f;
+}
+
+.text-ac{
+    text-align: center;
+}
+.bold{
+    font-weight: bold;
+}
+.fz12{
+    font-size: 12px;
+}
+
+.fz14{
+    font-size: 14px;
+}
+.fz15{
+    font-size:15px;
+}
+.fz16{
+    font-size:16px;
+}
+.fz17{
+    font-size:17px;
+}
+.fz20{
+    font-size: 20px;
+}
+.pd5{
+    padding:5px;
+}
+.pd10{
+    padding:10px;
+}
+.mt5{
+    margin-top:5px;
+}
+.mt10{
+    margin-top:10px;
+}
+.ml5{
+    margin-left:5px;
+}
+.ml10{
+    margin-left:10px;
+}
+.mr5{
+    margin-right: 5px;
+}
+.mr10{
+    margin-right: 10px;
+}
+.mb5{
+    margin-bottom: 5px;
+}
+.mb10{
+    margin-bottom: 10px;
+}
+
+.flex{
+    display:flex
+}
+.flex-c{
+    display:flex;
+    justify-content:center;
+    align-items: center;
+}
+.flex-a-c{
+    display:flex;
+    align-items: center;
+}
+.flex-j-c{
+    display:flex;justify-content:center
+}
+.flex-d-c{
+    display:flex;flex-direction:column
+}
+.flex-j-between{
+    display:flex;
+    justify-content:space-between 
+}
