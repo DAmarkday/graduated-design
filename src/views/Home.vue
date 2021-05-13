@@ -26,12 +26,12 @@
           </div>
 
           <a-upload
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            :action="$api.apis.imgLoad"
             list-type="picture-card"
             :file-list="fileList"
             @preview="handlePreview"
             @change="handleChange"
-         
+            :before-upload="beforeUpload"
           >
             <div v-if="fileList.length < limitedPicAmounts">
               <a-icon type="plus" />
@@ -47,8 +47,6 @@
           </a-modal>
         </div>
       </div>
-
-     
     </div>
   </div>
 </template>
@@ -62,7 +60,7 @@ function getBase64(file) {
     reader.onerror = (error) => reject(error);
   });
 }
-const limitedPicAmounts = 5 // 允许上传的图片识别数量
+const limitedPicAmounts = 5; // 允许上传的图片识别数量
 export default {
   name: "index",
   data() {
@@ -70,7 +68,7 @@ export default {
       fileList: [], // 图片上传数组
       previewVisible: false, // 显示预览图
       previewImage: "", // 预览图url地址或者编码
-      limitedPicAmounts
+      limitedPicAmounts,
     };
   },
   methods: {
@@ -90,17 +88,48 @@ export default {
     },
     // 重新赋值
     handleChange({ fileList }) {
+      console.log(fileList);
       this.fileList = fileList;
       // console.log(fileList)
     },
 
     // 进入图片识别页面 转码可以取消掉 因为上传后服务器返回图片网址可以直接显示
     async toRecoginsePage() {
-      for (let index = 0; index < this.fileList.length; index++) {
-        const element = this.fileList[index];
-        element.imgData = await getBase64(element.originFileObj); // 用于在识别界面显示图片不失真
-      }
-      this.$router.push({path:'/index'})
+      const { fileList } = this;
+      const formData = new FormData();
+      fileList.forEach((file) => {
+        formData.append("picture", file.originFileObj);
+      });
+      await this.$Net
+        .post(this.$api.apis.imgLoad, {}, formData, {
+          "content-type": "multipart/form-data",
+        })
+        .then((res) => {
+          if (res.code == 200) {
+            let data = res.data;
+            // console.log(data)
+            // 获取网络url
+            sessionStorage.setItem("saved_img_urls",JSON.stringify(data)); // 存储键值对
+            this.fileList = [];
+            this.$router.push({ path: "/index" });
+          } else {
+            this.$message.warning({
+              content: "图片上传失败,请重试",
+              duration: 2,
+            });
+          }
+        })
+        .catch(() => {
+          this.$message.error({
+            content: "网络链接错误,请刷新后重试",
+
+            duration: 2,
+          });
+        });
+    },
+    beforeUpload(file) {
+      this.fileList = [...this.fileList, file];
+      return false;
     },
   },
 };

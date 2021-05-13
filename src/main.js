@@ -7,6 +7,18 @@ import 'ant-design-vue/dist/antd.css';
 import './assets/global.scss'
 Vue.config.productionTip = false
 
+// 引入工具
+import apis from './utils/apis.js'
+Vue.prototype.$api = apis
+import { Net, Common, DataStore, Jump } from './utils/utils.js'
+Vue.prototype.$Net = Net
+Vue.prototype.$Common = Common
+Vue.prototype.$DataStore = DataStore
+Vue.prototype.$Jump = Jump
+import axios from 'axios'
+Vue.prototype.$axios = axios
+
+
 Vue.use(antd)
 new Vue({
   router,

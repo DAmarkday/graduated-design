@@ -1,13 +1,16 @@
 <template>
   <div class="flex" style="height: 100%">
     <div style="width: 270px; border-right: 1px solid #666666" class="mr10">
-      <div style="overflow-y: auto;height:100vh;">
-       <p class="bold" style="margin-left:20px;margin-top:10px;">引入的图片集:</p> 
-        <div v-for="(item, index) in imgShowList" :key="index">
+      <div style="overflow-y: auto; height: 100vh">
+        <p class="bold" style="margin-left: 20px; margin-top: 10px">
+          引入的图片集:
+        </p>
+        <div v-for="(item, index) in imgShowList" :key="index" class="flex-c">
           <img
-            :src="item"
-            alt="example"
-            style="width: 100%; height: 100%; object-fit: fill"
+            :src="host + item.url"
+            style="width: 90%; height: 90%; object-fit: fill; cursor: pointer"
+            class="pd5"
+            @click="chooseRecognisedImg(item.url, item.name)"
           />
         </div>
       </div>
@@ -31,7 +34,7 @@
               <div>
                 <div class="recognise-bg">
                   <img
-                    src="https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70"
+                    :src="host + choosedImgUrl"
                     alt="example"
                     style="width: 100%; height: 100%; object-fit: fill"
                   />
@@ -69,21 +72,28 @@ export default {
   components: { RecognisedPage },
   data() {
     return {
-      imgShowList: [
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-        "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
-      ], // 图片上传数组
+      // imgShowList: [
+      //   "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
+      // ], // 图片上传数组
+      host: "http://localhost:8080", // 请求host
       recognisedShowStatus: false, // 识别成功界面模态框显示或隐藏
+      imgShowList: [], // 图片上传数组
+      choosedImgUrl: "", // 点击的图片
+      choosedImgName: "", // 点击选择的图片的name
     };
   },
+  mounted() {
+    // 初始化图片显示
+    let array = JSON.parse(sessionStorage.getItem("saved_img_urls"));
+    if (array) {
+      this.imgShowList = array;
+      this.chooseRecognisedImg(array[0].url, array[0].name);
+    }
+  },
   methods: {
-    // 点击识别
+    /**
+     * 点击识别
+     */
     clickRecognise() {
       this.$message.loading({ content: "识别提交中...请稍后", key });
       setTimeout(() => {
@@ -95,11 +105,24 @@ export default {
         this.closeRecognisedModal(true); // 显示识别成功模态框
       }, 1000);
     },
+    /**
+     * 关闭识别模态框
+     */
     closeRecognisedModal(val) {
       this.recognisedShowStatus = val;
     },
+    /**
+     * 返回上层
+     */
     returnToHome() {
       this.$router.push({ path: "/home" });
+    },
+    /**
+     * 点击选择图片显示在界面
+     */
+    chooseRecognisedImg(url, name) {
+      this.choosedImgUrl = url;
+      this.choosedImgName = name;
     },
   },
 };
