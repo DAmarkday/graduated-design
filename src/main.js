@@ -17,7 +17,7 @@ Vue.prototype.$DataStore = DataStore
 Vue.prototype.$Jump = Jump
 import axios from 'axios'
 Vue.prototype.$axios = axios
-
+Vue.prototype.$host = "http://localhost:8080" // 请求host
 
 Vue.use(antd)
 new Vue({

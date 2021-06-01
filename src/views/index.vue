@@ -7,7 +7,7 @@
         </p>
         <div v-for="(item, index) in imgShowList" :key="index" class="flex-c">
           <img
-            :src="host + item.url"
+            :src="$host + item.url"
             style="width: 90%; height: 90%; object-fit: fill; cursor: pointer"
             class="pd5"
             @click="chooseRecognisedImg(item.url, item.name)"
@@ -34,7 +34,7 @@
               <div>
                 <div class="recognise-bg">
                   <img
-                    :src="host + choosedImgUrl"
+                    :src="$host + choosedImgUrl"
                     alt="example"
                     style="width: 100%; height: 100%; object-fit: fill"
                   />
@@ -46,7 +46,15 @@
               <a-button type="danger" class="mb5" @click="clickRecognise">
                 点击识别
               </a-button>
-              <a-button type="danger" class="mb5"> 导出模型 </a-button>
+               <a-button type="danger" class="mb5">
+                <a :href="$api.apis.imgZip" download="imgs.zip">下载检测集</a>
+              </a-button>
+               <a-button type="danger" class="mb5">
+                <a :href="$api.apis.imgReZip" download="re.zip">下载识别集</a>
+              </a-button>
+              <a-button type="danger" class="mb5">
+                <a :href="$api.apis.download" download="modal.pb">导出模型</a>
+              </a-button>
             </div>
           </div>
         </div>
@@ -58,7 +66,11 @@
       :width="800"
       @cancel="closeRecognisedModal(false)"
     >
-      <RecognisedPage @closeRecognised="closeRecognisedModal"></RecognisedPage>
+      <RecognisedPage
+        @closeRecognised="closeRecognisedModal"
+        :toRecognisedUrlKey="recognisedD"
+        :toChoosedUrlKey="choosedImgName"
+      ></RecognisedPage>
       <!-- <img alt="example" style="width: 100%" :src="previewImage" /> -->
     </a-modal>
   </div>
@@ -75,11 +87,11 @@ export default {
       // imgShowList: [
       //   "https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70",
       // ], // 图片上传数组
-      host: "http://localhost:8080", // 请求host
       recognisedShowStatus: false, // 识别成功界面模态框显示或隐藏
       imgShowList: [], // 图片上传数组
       choosedImgUrl: "", // 点击的图片
       choosedImgName: "", // 点击选择的图片的name
+      recognisedD: undefined,
     };
   },
   mounted() {
@@ -94,17 +106,43 @@ export default {
     /**
      * 点击识别
      */
-    clickRecognise() {
-      this.$message.loading({ content: "识别提交中...请稍后", key });
-      setTimeout(() => {
-        this.$message.success({
-          content: "识别结果返回成功!",
-          key,
-          duration: 2,
+    async clickRecognise() {
+      this.$message.loading({
+        content: "识别提交中...请稍后",
+        key,
+        duration: 0,
+      });
+      await this.$Net
+        .get(this.$api.apis.detection, { name: this.choosedImgName }, {})
+        .then((res) => {
+          if (res.code == 200) {
+            let data = res.data;
+            this.$message.success({
+              content: "识别结果返回成功!",
+              key,
+              duration: 2,
+            });
+            this.recognisedD = data.re_url;
+            this.closeRecognisedModal(true); // 显示识别成功模态框
+          } else {
+            this.$message.warning({
+              content: "识别图片失败,请重试",
+              key,
+              duration: 2,
+            });
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+          this.$message.error({
+            content: "网络链接错误,请刷新后重试",
+            key,
+            duration: 2,
+          });
         });
-        this.closeRecognisedModal(true); // 显示识别成功模态框
-      }, 1000);
     },
+    
+
     /**
      * 关闭识别模态框
      */

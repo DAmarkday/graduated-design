@@ -3,7 +3,7 @@
     <div class="bold">识别结果如下:</div>
     <div>
       <img
-        src="https://img-blog.csdnimg.cn/20200522160037154.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjY4NDQxOA==,size_16,color_FFFFFF,t_70"
+        :src="$host + url"
         alt=""
         style="width: 100%; height: 100%; object-fit: fill"
       />
@@ -12,12 +12,16 @@
       <span class="bold">提示: </span
       ><span
         >物体检测成功率在不考虑过拟合的情况下取决于训练样本的数量,如果本次物体检测误差较大,你可以
-        <span class="bold add">添加标签</span>
-        或 <span class="bold change">修改标签</span>
+       
+         <span class="bold change" @click="delieverToParam">操作检测结果</span>
       </span>
     </p>
     <div class="flex-j-c">
-      <a-button type="primary" @click="clickRecognisedSuccess"> 检测成功 </a-button>
+      <a-button type="primary" @click="clickRecognisedSuccess">
+        检测成功
+      </a-button>
+      <a :href="splitUrlToName($api.apis.imgDownload,url)" download="recognised.jpg" style="position:absolute;right:20px;margin-top:5px">保存识别的图片</a>
+      <!-- <div>{{splitUrlToName($api.apis.imgDownload,url)}}</div> -->
     </div>
     <!-- <a-button type="primary" ghost> 添加标签 </a-button>
     <a-button type="danger" ghost> 修改标签 </a-button> -->
@@ -29,20 +33,51 @@ const key = "updatable";
 export default {
   name: "index",
   props: {
-    recognisedDataKey: {
-      type: Object,
+    toRecognisedUrlKey: {
+      type: String,
       default: () => {
-        return {};
+        return undefined;
+      },
+    },
+    toChoosedUrlKey: {
+      type: String,
+      default: () => {
+        return undefined;
       },
     },
   },
   data() {
-    return {};
+    return {
+      url: this.toRecognisedUrlKey,
+      choose: this.toChoosedUrlKey,
+    };
   },
   methods: {
-      clickRecognisedSuccess(){
-          this.$emit('closeRecognised',false)
-      }
+splitUrlToName(a,url){
+      let name =url.split("img/")[1] 
+      let u = `${a}?name=${name}`
+      return u;
+    },
+
+
+    /**
+     * 关闭模块框
+     */
+    clickRecognisedSuccess() {
+      this.$emit("closeRecognised", false);
+    },
+    delieverToParam() {
+      console.log('11111'+this.choose)
+      this.$router.push({ name: "change", params: { img_name:this.choose } });
+    },
+  },
+  watch: {
+    toRecognisedUrlKey(val) {
+      this.url = val;
+    },
+    toChoosedUrlKey(val) {
+      this.choose = val;
+    },
   },
 };
 </script>
@@ -57,7 +92,7 @@ export default {
 .add {
   color: #40a9ff;
   cursor: pointer;
-   &:hover {
+  &:hover {
     text-decoration: underline;
   }
 }

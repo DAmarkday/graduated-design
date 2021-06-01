@@ -1,57 +1,165 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <div class="WebTitle">
+      <h1>图像标注平台(待标注图像)</h1>
+    </div>
+    <div></div>
+    <div class="LabelBox">
+      <div class="ImBox">
+        <div style="display: flex; justify-content: center">
+          <div>
+            <div
+              style="
+                display: flex;
+                justify-content: left;
+                padding-top: 30px;
+                padding-bottom: 5px;
+              "
+            >
+              <a-button type="primary" @click="returnBack()">
+                返回上一级
+              </a-button>
+            </div>
+            <canvas class="Imcanvas">
+              <p>你的浏览器竟然不支持canvas!</p>
+            </canvas>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: center">
+        <h3>注意:</h3>
+
+        <span> 一次只能更新一个类别 </span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
+  name: "change",
+  data() {
+    return {};
+  },
+  mounted() {
+    if (this.$route.params.img_url) {
+      var canvas = document.querySelector(".Imcanvas");
+      var canW = canvas.width;
+      var canH = canvas.height;
+      var ctx = canvas.getContext("2d");
+      ctx.lineWidth = 3;
+    }
+  },
+  methods: {
+    returnBack() {
+      this.$router.go(-1);
+    },
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+    /*在canvas的图像上画直线*/
+    drwa_line(img, x1, y1, x2, y2, color) {
+      if (x1 == x2 && x1 > img.canx && x1 < img.canx + img.canw) {
+        if (y1 < img.cany) {
+          y1 = img.cany;
+        }
+        if (y1 > img.cany + img.canh) {
+          y1 = img.cany + img.canh;
+        }
+        if (y2 < img.cany) {
+          y2 = img.cany;
+        }
+        if (y2 > img.cany + img.canh) {
+          y2 = img.cany + img.canh;
+        }
+        ctx.strokeStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.closePath();
+      } else {
+        if (y1 == y2 && y1 > img.cany && y1 < img.cany + img.canh) {
+          if (x1 < img.canx) {
+            x1 = img.canx;
+          }
+          if (x1 > img.canx + img.canw) {
+            x1 = img.canx + img.canw;
+          }
+          if (x2 < img.canx) {
+            x2 = img.canx;
+          }
+          if (x2 > img.canx + img.canw) {
+            x2 = img.canx + img.canw;
+          }
+          ctx.strokeStyle = color;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          ctx.closePath();
+        }
+      }
+    },
+  },
+};
+</script>
+<style lang="scss" scoped>
+.WebTitle {
+  background-color: #e9ebfe;
+  color: #8470ff;
+  padding: 15px;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.WebTitle h1 {
+  text-align: center;
+  letter-spacing: 5px;
 }
-li {
+
+.WebTitle h6 {
+  text-align: right;
+  color: black;
+  white-space: pre;
+  margin: 0 auto;
+  padding: 0px 3px 5px 0px;
+}
+
+body {
+  margin: 0 auto;
+  background-color: #cce8cf;
+  padding: 0px 15px 0px 15px;
+  width: 1280px;
+}
+
+.LabelBox {
+  display: block;
+}
+
+.ImBox {
+  flex: 1;
+  color: red;
+  text-align: center;
+  background-color: #faf9de;
+  padding: 0px 30px 10px 30px;
+}
+
+.Imcanvas {
+  display: block;
+  background: url(https://img2.baidu.com/it/u=590671829,2119277121&fm=224&fmt=auto&gp=0.jpg)
+    no-repeat center center;
+  background-size: 100% 100%;
+}
+
+label {
   display: inline-block;
-  margin: 0 10px;
+  width: 100px;
+  color: blue;
 }
-a {
-  color: #42b983;
+
+.Label {
+  padding: 0px 0px 20px 0px;
+}
+
+button {
+  padding: 5px;
+  width: 100px;
 }
 </style>

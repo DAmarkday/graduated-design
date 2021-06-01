@@ -47,5 +47,5 @@ axios.defaults.headers = {
     'X-Requested-With': 'XMLHttpRequest',
     'Content-type': 'application/json;charset=UTF-8',
 }
-axios.defaults.timeout = 10000
+axios.defaults.timeout = 200000
 axios.defaults.withCredentials = true
